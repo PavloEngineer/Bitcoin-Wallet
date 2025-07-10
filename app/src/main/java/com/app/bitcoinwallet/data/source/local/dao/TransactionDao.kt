@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface TransactionDao {
 
     @Insert
-   suspend fun insertTransactionEntity(transactionEntity: TransactionEntity): Int
+   suspend fun insertTransactionEntity(transactionEntity: TransactionEntity)
 
     @Query("SELECT * FROM `transaction` ORDER BY date DESC LIMIT :limit OFFSET :offset")
     fun getTransactionsByPage(limit: Int, offset: Int): Flow<List<TransactionEntity>>
