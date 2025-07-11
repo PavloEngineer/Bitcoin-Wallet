@@ -15,4 +15,10 @@
     <string name="label_range_bitcoin">BTC: %s $</string>
 
     <string name="text_empty_list">Empty list</string>
+    <string name="label_amount">Amount</string>
+    <string name="label_btc">BTC</string>
+    <string name="label_category">Category</string>
+
+    <string name="title_new_transaction">New transaction</string>
+    <string name="error_small_balance">Not enough balance</string>
 </resources>

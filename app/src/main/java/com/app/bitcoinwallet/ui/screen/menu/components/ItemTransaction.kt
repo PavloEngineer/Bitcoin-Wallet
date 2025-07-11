@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,10 +59,11 @@ fun ItemTransaction(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
+                Spacer(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(dimensionResource(R.dimen.width_line))
@@ -72,7 +74,7 @@ fun ItemTransaction(
                     text = transactionData.category?.value ?: "",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
 
                 Text(
