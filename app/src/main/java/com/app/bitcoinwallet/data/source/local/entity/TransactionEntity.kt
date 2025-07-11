@@ -13,7 +13,7 @@ data class TransactionEntity(
     val date: LocalDate,
     val amountCoins: Float,
     val isExpenses: Boolean,
-    val category: TransactionCategory
+    val category: TransactionCategory?
 ) {
     fun toTransactionData(): TransactionData = TransactionData(
         id,

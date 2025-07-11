@@ -10,7 +10,7 @@ import javax.inject.Inject
 class GetRateDollarsToBitcoinUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository
 ) {
-    suspend operator fun invoke(ids: String, codeCurrencies: String): NetworkResult<BitcoinData> {
+    suspend operator fun invoke(ids: String = "bitcoin", codeCurrencies: String = "usd"): NetworkResult<BitcoinData> {
         return withContext(Dispatchers.IO) {
             currencyRepository.getRateDollarsToBitcoin(ids, codeCurrencies)
         }
