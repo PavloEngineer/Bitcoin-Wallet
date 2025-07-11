@@ -16,15 +16,13 @@ import com.app.bitcoinwallet.ui.utils.TransactionGroupManager.groupTransactionsB
 import com.app.bitcoinwallet.ui.utils.TransactionGroupManager.mergeGroupedTransactions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,63 +46,80 @@ class MenuViewModel @Inject constructor(
     val currentRateBitcoinState: StateFlow<StateUI<Int>> =
         _currentRateBitcoinState
 
+    private val _isLoadingNextPage = MutableStateFlow(false)
+    val isLoadingNextPage: StateFlow<Boolean> = _isLoadingNextPage
+
     private var currentPage = 0
     private val pageSize = 20
 
     private var isLastPage = false
-    private var isLoadingTransactions = false
 
-    fun loadTransactions() {
-        if (isLoadingTransactions || isLastPage) return
+    fun loadAllData() {
+        loadMoreTransactions()
+        updateTransactionsCollecting()
+        loadCurrentBalance()
+        loadCurrentRateBitcoin()
+    }
 
-        isLoadingTransactions = true
-        _transactionsState.update { StateUI.Loading }
+    fun loadMoreTransactions() {
+        if (isLoadingNextPage.value || isLastPage) return
 
         viewModelScope.launch {
-            val offset = currentPage * pageSize
-            getTransactionDataUseCase(pageSize, offset)
-                .catch { e ->
-                    isLoadingTransactions = false
-                    _transactionsState.update {
-                        StateUI.Error(
-                            e.message ?: context.getString(R.string.error_unknown)
-                        )
-                    }
-                }
-                .collect { newList ->
-                    isLoadingTransactions = false
-                    if (newList.size < pageSize) isLastPage = true
+            _isLoadingNextPage.update { true }
+
+            val result = getTransactionDataUseCase(pageSize, currentPage * pageSize).first()
+
+            if (result.isNotEmpty()) {
+                if (result.size == pageSize) {
                     currentPage++
-
-                    val currentList = (_transactionsState.value as? StateUI.Success)?.data
-                    currentList?.let { list ->
-                        val updatedTransactionsList = withContext(Dispatchers.Default) {
-                            mergeGroupedTransactions(list, groupTransactionsByDate(newList))
-                        }
-
-                        _transactionsState.update { StateUI.Success(updatedTransactionsList) }
-                    }
+                } else {
+                    isLastPage = true
                 }
+
+                updateTransactionsState(result)
+            }
+
+            _isLoadingNextPage.update { false }
         }
     }
 
-    fun loadCurrentRateBitcoin() {
+    private fun updateTransactionsState(newTransactions: List<TransactionData>) {
+        val currentList = (_transactionsState.value as? StateUI.Success)?.data ?: emptyList()
+        val updatedList =
+            mergeGroupedTransactions(currentList, groupTransactionsByDate(newTransactions))
+        _transactionsState.update { StateUI.Success(updatedList) }
+    }
+
+    private fun loadCurrentRateBitcoin() {
         viewModelScope.launch {
+            val lastCall = walletDataStore.getLastBitcoinRateCallTimestamp().first()?: 0L
+            val currentTime = System.currentTimeMillis()
+            val oneHourInMillis = 3600 * 1000L
+
+            if ((currentTime - lastCall) < oneHourInMillis) {
+                val cachedBitcoinRate = walletDataStore.getBitcoinRateUsd().first()?:0
+                _currentRateBitcoinState.update { StateUI.Success(cachedBitcoinRate) }
+                return@launch
+            }
+
             _currentRateBitcoinState.update { StateUI.Loading }
 
             when (val result = getRateDollarsToBitcoinUseCase()) {
                 is NetworkResult.Success -> {
+                    walletDataStore.saveLastBitcoinRateCallTimestamp(currentTime)
+                    walletDataStore.saveBitcoinRateUsd(result.data.usd)
                     _currentRateBitcoinState.update { StateUI.Success(result.data.usd) }
                 }
-
                 is NetworkResult.Error -> {
-                    _currentRateBitcoinState.update { StateUI.Error(result.message) }
+                    _currentRateBitcoinState.update {
+                        StateUI.Error(result.message)
+                    }
                 }
             }
         }
     }
 
-    fun loadCurrentBalance() {
+    private fun loadCurrentBalance() {
         viewModelScope.launch {
             _balanceState.update { StateUI.Loading }
             walletDataStore.getBalance()
@@ -123,15 +138,29 @@ class MenuViewModel @Inject constructor(
 
     fun addCoinsToBalance(sum: Float) {
         viewModelScope.launch {
-            val newTransaction = TransactionData(
-                date = LocalDate.now(),
-                amountCoins = sum,
-                isExpenses = false
-            )
-            insertTransactionDataUseCase(newTransaction)
+            saveTransaction(sum)
 
             val currentBalance = walletDataStore.getBalance().first() ?: 0f
             walletDataStore.saveBalance(currentBalance + sum)
+        }
+    }
+
+    private suspend fun saveTransaction(sum: Float) {
+        val newTransaction = TransactionData(
+            date = LocalDateTime.now(),
+            amountCoins = sum,
+            isExpenses = false
+        )
+        insertTransactionDataUseCase(newTransaction)
+    }
+
+    private fun updateTransactionsCollecting() {
+        viewModelScope.launch {
+            getTransactionDataUseCase(pageSize, currentPage * pageSize).collect {
+                _isLoadingNextPage.update { true }
+                updateTransactionsState(it)
+                _isLoadingNextPage.update { false }
+            }
         }
     }
 }

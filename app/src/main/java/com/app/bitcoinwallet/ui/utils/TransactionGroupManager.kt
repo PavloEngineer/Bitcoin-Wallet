@@ -1,7 +1,7 @@
 package com.app.bitcoinwallet.ui.utils
 
 import com.app.bitcoinwallet.domain.model.TransactionData
-import com.app.bitcoinwallet.domain.utils.DatePatternConstants.DD_MM_YYYY
+import com.app.bitcoinwallet.domain.utils.DatePatternConstants.DAY_MONTH_YEAR
 import com.app.bitcoinwallet.ui.model.TransactionGroupUI
 import java.time.format.DateTimeFormatter
 
@@ -13,30 +13,33 @@ object TransactionGroupManager {
     ): List<TransactionGroupUI> {
         val mergedMap = LinkedHashMap<String, MutableList<TransactionData>>()
 
-        for (group in oldList) {
-            mergedMap[group.date] = group.items.toMutableList()
-        }
+        (oldList + newList).forEach { group ->
+            val existingTransactions = mergedMap.getOrPut(group.date) { mutableListOf() }
 
-        for (group in newList) {
-            val existing = mergedMap[group.date]
-            if (existing != null) {
-                existing.addAll(group.items)
-            } else {
-                mergedMap[group.date] = group.items.toMutableList()
+            group.items.forEach { newTransaction ->
+                if (!existingTransactions.any { it.id == newTransaction.id }) {
+                    existingTransactions.add(newTransaction)
+                }
             }
         }
 
         return mergedMap
             .toSortedMap(compareByDescending { it })
             .map { (date, transactions) ->
-                TransactionGroupUI(date, transactions.sortedByDescending { it.date })
+                TransactionGroupUI(
+                    date = date,
+                    items = transactions
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.date }
+                )
             }
     }
+
 
     fun groupTransactionsByDate(transactions: List<TransactionData>): List<TransactionGroupUI> {
         return transactions
             .groupBy { transaction ->
-                transaction.date.format(DateTimeFormatter.ofPattern(DD_MM_YYYY))
+                transaction.date.format(DateTimeFormatter.ofPattern(DAY_MONTH_YEAR))
             }
             .toSortedMap(compareByDescending { it })
             .map { (date, items) ->

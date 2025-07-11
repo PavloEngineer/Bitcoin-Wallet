@@ -3,9 +3,11 @@ package com.app.bitcoinwallet.data.utils
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.app.bitcoinwallet.domain.utils.WalletDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -14,13 +16,13 @@ import javax.inject.Singleton
 private val Context.dataStore by preferencesDataStore(name = "wallet_prefs")
 @Singleton
 class WalletDataStoreImpl @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ): WalletDataStore {
 
     companion object {
         private val KEY_BITCOIN_RATE_DATE_UPDATE = longPreferencesKey("bitcoin_rate_date_update")
         private val KEY_BALANCE_COINS = floatPreferencesKey("balance_in_coins")
-        private val KEY_BITCOIN_RATE_USD = floatPreferencesKey("bitcoin_rate_usd")
+        private val KEY_BITCOIN_RATE_USD = intPreferencesKey("bitcoin_rate_usd")
     }
 
     override suspend fun saveLastBitcoinRateCallTimestamp(timestamp: Long) {
@@ -45,13 +47,13 @@ class WalletDataStoreImpl @Inject constructor(
             prefs[KEY_BALANCE_COINS]
         }
 
-    override suspend fun saveBitcoinRateUsd(rate: Float) {
+    override suspend fun saveBitcoinRateUsd(rate: Int) {
         context.dataStore.edit { prefs ->
             prefs[KEY_BITCOIN_RATE_USD] = rate
         }
     }
 
-    override fun getBitcoinRateUsd(): Flow<Float?> =
+    override fun getBitcoinRateUsd(): Flow<Int?> =
         context.dataStore.data.map { prefs ->
             prefs[KEY_BITCOIN_RATE_USD]
         }

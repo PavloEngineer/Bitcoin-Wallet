@@ -12,7 +12,7 @@ interface WalletDataStore {
 
     fun getBalance(): Flow<Float?>
 
-    suspend fun saveBitcoinRateUsd(rate: Float)
+    suspend fun saveBitcoinRateUsd(rate: Int)
 
-    fun getBitcoinRateUsd(): Flow<Float?>
+    fun getBitcoinRateUsd(): Flow<Int?>
 }
