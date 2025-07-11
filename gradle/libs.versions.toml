@@ -18,6 +18,7 @@ kotlinx-coroutines-android = "1.10.1"
 kotlinx-coroutines-core = "1.10.1"
 google-devtools = "2.1.10-1.0.29"
 hiltNavigationCompose = "1.2.0"
+uiTextGoogleFonts = "1.8.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 # Retrofit
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
