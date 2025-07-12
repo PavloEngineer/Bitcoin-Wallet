@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.app.bitcoinwallet.domain.model.TransactionCategory
 import com.app.bitcoinwallet.domain.model.TransactionData
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity("transaction")

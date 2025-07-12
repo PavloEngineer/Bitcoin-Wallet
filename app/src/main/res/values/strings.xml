@@ -1,24 +1,24 @@
 <resources>
     <string name="app_name">Bitcoin Wallet</string>
 
-    <string name="error_unknown">Error</string>
-    <string name="text_coins">Coins</string>
-    <string name="text_button_add">Add</string>
-
-    <string name="button_add">Add</string>
-    <string name="button_cancel">Cancel</string>
-    <string name="button_add_transaction">Add transaction</string>
-
+    <!-- Add transaction screen -->
     <string name="label_income">Income</string>
-
     <string name="title_new_bitcoins">Save your income</string>
-    <string name="label_range_bitcoin">BTC: %s $</string>
-
-    <string name="text_empty_list">Empty list</string>
     <string name="label_amount">Amount</string>
     <string name="label_btc">BTC</string>
     <string name="label_category">Category</string>
-
     <string name="title_new_transaction">New transaction</string>
+
+    <!-- Menu screen -->
+    <string name="text_empty_list">Empty list</string>
+    <string name="button_add">Add</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_add_transaction">Add transaction</string>
+    <string name="text_coins">Coins</string>
+    <string name="text_button_add">Add</string>
+    <string name="label_range_bitcoin">BTC: %s $</string>
+
+    <!-- Errors -->
+    <string name="error_unknown">Error</string>
     <string name="error_small_balance">Not enough balance</string>
 </resources>

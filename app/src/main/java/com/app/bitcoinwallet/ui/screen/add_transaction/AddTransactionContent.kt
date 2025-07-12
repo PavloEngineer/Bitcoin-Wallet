@@ -49,12 +49,13 @@ fun AddTransactionContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title_new_transaction)) },
+                title = { Text(stringResource(R.string.title_new_transaction), color = MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = onBackButtonClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.button_cancel)
+                            contentDescription = stringResource(R.string.button_cancel),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
@@ -73,14 +74,14 @@ fun AddTransactionContent(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } },
-                    label = { Text(stringResource(R.string.label_amount)) },
+                    label = { Text(stringResource(R.string.label_amount), color = MaterialTheme.colorScheme.primary) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    leadingIcon = { Text(stringResource(R.string.label_btc)) }
+                    leadingIcon = { Text(stringResource(R.string.label_btc), color = MaterialTheme.colorScheme.primary) }
                 )
 
-                Text(stringResource(R.string.label_category), style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.label_category), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                     modifier = Modifier.fillMaxWidth()
@@ -89,7 +90,7 @@ fun AddTransactionContent(
                         FilterChip(
                             selected = selectedCategory.value == categories[category].value,
                             onClick = { selectedCategory = categories[category] },
-                            label = { Text(categories[category].value) },
+                            label = { Text(categories[category].value, color = MaterialTheme.colorScheme.primary) },
                             modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
                         )
                     }
